@@ -10,7 +10,6 @@ void print_positions( vector<Point> points, int N ) {
 }
 
 
-// TEST THIS ON PLUMMER!!
 vector<Point> read_points(string filename)
 {
     int i, lines;
@@ -22,9 +21,6 @@ vector<Point> read_points(string filename)
     for (i=0; i<lines; i++)
     {
         fscanf(file, "%lf,%lf,%lf,%lf,%lf,%lf,%lf", &points[i].m, &points[i].x, &points[i].y, &points[i].z, &points[i].vx, &points[i].vy, &points[i].vz);
-        //points[i].vx = 0;
-        //points[i].vy = 0;
-        //points[i].vz = 0;
     }
     return points;
 }
@@ -67,12 +63,10 @@ void accelerate_points(vector<Point> &points, bool initialized) {
             points[j].ax += dx*m1d3;
             points[j].ay += dy*m1d3;
             points[j].az += dz*m1d3;
-            //cout << "\t" << i << "\t" << j << "\t" << setfill(' ') << setw(10) << points[i].m << "\t" << setfill(' ') << setw(10) << points[j].m << "\t" << setfill(' ') << setw(10) << d*m2d3 << "\t" << setfill(' ') << setw(10) << d*m1d3 << endl;
         }
     }
     if (initialized) {
         for (int i=0; i<points.size(); i++) {
-            //cout << "\t" << points[i].x << "\t" << points[i].y << "\t" << points[i].z << endl;
             points[i].vx += (points[i].ax)*dt;
             points[i].vy += (points[i].ay)*dt;
             points[i].vz += (points[i].az)*dt;
@@ -95,15 +89,12 @@ int main(int argc, char **argv)
     int N = 4;
     double max_opening = 0.3;
     double eps = 0.025;
-    double dt = 0.000001; //0.00000005;
+    double dt = 0.000001; 
     int interval = 20;
-    //Octree tree = Octree(-10000, -10000, -10000, 10000, 10000, 10000, max_opening, eps, dt);
-    //Octree tree = Octree(-100, -100, -100, 100, 100, 100, max_opening, eps, dt);
-    //Octree tree = Octree(-75, -75, -75, 75, 75, 75, max_opening, eps, dt);
     Octree tree = Octree(-3, -3, -3, 4, 4, 4, max_opening, eps, dt);
     
     string directory = "/Users/Zeyad/Desktop/treecode/New/";
-    string input_file = "data/stable_plummer.txt"; //"data/c59_full_heavy_companion.txt"; //"data/stable_plummer.txt"; //"data/galaxy.txt"; //"data/c59_full.txt"; //"data/c59_full_cartwheel.txt";
+    string input_file = "data/galaxy.txt"; 
     vector<Point> points = read_points(directory + input_file );
     N = points.size();
     
@@ -111,7 +102,6 @@ int main(int argc, char **argv)
     cout << "Calculating aggregates" << endl;
     tree.calculate_aggregates();
     Point* p = tree.root->point;
-    cout << "Made it!" << endl;
     cout << "Root has:\tm = " << p->m << "\tx = " << p->x << "\ty = " << p->y << "\tz = " << p->z << endl;
     
     tree.calculate_all_accelerations();
@@ -119,15 +109,15 @@ int main(int argc, char **argv)
     tree.update_positions(tree.root);
     int counter = 0;
     for (int i=0; i<=1000; i++) {
-        //cout << "Starting iteration " << i << endl;
         tree.clear(points);
         tree.add_point_vector(points);
         tree.calculate_aggregates();
         tree.calculate_all_accelerations();
         tree.update_positions(tree.root);
         if (i%interval == 0)
+            cout << "Saving a snapshot at iteration" << i << endl;
             write_points(directory + "results/output_" + to_string(counter++) + ".txt", points, dt*i);
     }
     
-    cout << "Completely finished!" << endl;
+    cout << "Finished running" << endl;
 }
